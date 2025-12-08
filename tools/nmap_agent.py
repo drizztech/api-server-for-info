@@ -1,9 +1,13 @@
 import subprocess
 import shutil
+from typing import Dict, Any
 from tools.base_agent import BaseAgent
 
 class NmapAgent(BaseAgent):
-    def run(self, params):
+    name = "nmap"
+    description = "Executes an Nmap network scan on a target."
+
+    def run(self, params: Dict[str, Any]) -> Dict[str, Any]:
         target = params.get("target")
         options = params.get("options", "-sV")
 
@@ -25,3 +29,27 @@ class NmapAgent(BaseAgent):
             return {"error": "Nmap scan timed out."}
         except Exception as e:
             return {"error": str(e)}
+
+    @classmethod
+    def get_schema(cls) -> Dict[str, Any]:
+        return {
+            "type": "function",
+            "function": {
+                "name": cls.name,
+                "description": cls.description,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "target": {
+                            "type": "string",
+                            "description": "The target hostname or IP address."
+                        },
+                        "options": {
+                            "type": "string",
+                            "description": "Nmap command line options (default: -sV)."
+                        }
+                    },
+                    "required": ["target"]
+                }
+            }
+        }
