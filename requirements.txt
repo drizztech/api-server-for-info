@@ -2,3 +2,5 @@ flask
 google-generativeai
 requests
 pydantic
+beautifulsoup4
+psycopg2-binary
