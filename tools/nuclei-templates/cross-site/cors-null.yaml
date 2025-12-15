@@ -1,0 +1,24 @@
+id: cors-null-origin
+info:
+  name: CORS Misconfiguration - Null Origin with Credentials
+  author: WhiteFatalis
+  severity: high
+  description: Checks if the server accepts the 'null' origin and reflects it back with Access-Control-Allow-Credentials set to true.
+  tags: cors, misconfig
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Origin: null
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "Access-Control-Allow-Origin: null"
+          - "Access-Control-Allow-Credentials: true"
+        condition: and

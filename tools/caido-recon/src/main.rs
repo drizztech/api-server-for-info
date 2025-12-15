@@ -29,8 +29,11 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Query APIs to expand target list if keys are provided
-    if let Ok(chaos_targets) = apis::query_chaos("example.com", args.chaos_key.as_deref()).await {
-        targets.extend(chaos_targets.iter().map(|s| s.domain.clone()));
+    // For now, we just pick the first target if available as a seed, or skip if empty.
+    if let Some(first_target) = targets.first() {
+        if let Ok(chaos_targets) = apis::query_chaos(first_target, args.chaos_key.as_deref()).await {
+             targets.extend(chaos_targets.iter().map(|s| s.domain.clone()));
+        }
     }
 
     // Note: Other APIs (Google/Bing) would typically require a search query, not just a target list.

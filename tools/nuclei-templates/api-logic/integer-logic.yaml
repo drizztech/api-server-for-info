@@ -1,0 +1,50 @@
+id: api-logic-integer-overflow
+info:
+  name: API Logic - Integer Overflow / Negative Quantity
+  author: WhiteFatalis
+  severity: high
+  description: Tests logic flaws where negative quantities or large integers are accepted, potentially causing billing errors or buffer overflows.
+  tags: api, logic, overflow
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/cart/add"
+      - "{{BaseURL}}/api/transfer"
+
+    headers:
+      Content-Type: application/json
+
+    body: |
+      {
+        "product_id": 1,
+        "quantity": -1
+      }
+
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/cart/add"
+
+    headers:
+      Content-Type: application/json
+
+    body: |
+      {
+        "product_id": 1,
+        "quantity": 2147483648
+      }
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 500
+
+      - type: word
+        part: body
+        words:
+          - "success"
+          - "added"
+          - "balance"
+        condition: or
