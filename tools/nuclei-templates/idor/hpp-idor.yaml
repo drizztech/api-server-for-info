@@ -1,0 +1,33 @@
+id: idor-parameter-pollution
+info:
+  name: IDOR via Parameter Pollution (HPP)
+  author: WhiteFatalis
+  severity: high
+  description: Detects potential IDOR vulnerabilities where the application processes the second 'id' parameter differently, potentially bypassing access controls.
+  tags: idor, logic, hpp
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/api/profile?id={{user_id}}&id={{admin_id}}"
+      - "{{BaseURL}}/user?user_id={{user_id}}&user_id={{admin_id}}"
+
+    payloads:
+      user_id:
+        - "1000"
+      admin_id:
+        - "1"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "admin"
+          - "root"
+          - "superuser"
+        condition: or
+
+      - type: status
+        status:
+          - 200
