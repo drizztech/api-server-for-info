@@ -1,0 +1,33 @@
+id: api-logic-method-override
+info:
+  name: API Logic - HTTP Method Override
+  author: WhiteFatalis
+  severity: medium
+  description: Checks if the API supports HTTP Method Override headers, which might bypass firewall rules or access controls restricting specific verbs (e.g., DELETE).
+  tags: api, logic, bypass
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/users/1"
+      - "{{BaseURL}}/resource/1"
+
+    headers:
+      X-HTTP-Method-Override: DELETE
+      X-HTTP-Method: DELETE
+      X-Method-Override: DELETE
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 204
+
+      - type: word
+        part: body
+        words:
+          - "deleted"
+          - "removed"
+          - "success"
+        condition: or

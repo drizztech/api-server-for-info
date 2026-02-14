@@ -1,0 +1,41 @@
+id: cors-origin-reflection-bypass
+info:
+  name: CORS Origin Reflection with Bypass Characters
+  author: WhiteFatalis
+  severity: medium
+  description: Checks if the server reflects origins that are technically different but might bypass regex checks (e.g., using underscores or special chars).
+  tags: cors, misconfig
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Origin: "{{BaseURL}}.attacker.com"
+      # Example: example.com.attacker.com
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "Access-Control-Allow-Origin: {{BaseURL}}.attacker.com"
+          - "Access-Control-Allow-Credentials: true"
+        condition: and
+
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Origin: "{{BaseURL}}_.attacker.com"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "Access-Control-Allow-Origin: {{BaseURL}}_.attacker.com"
+          - "Access-Control-Allow-Credentials: true"
+        condition: and

